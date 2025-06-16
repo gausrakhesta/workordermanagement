@@ -34,13 +34,6 @@ class _LoginState extends State<LoginPage> {
         showMessage('Email atau password salah');
       },
     );
-
-    if (authProvider.isLoggedIn) {
-      showMessage('Login berhasil!');
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      showMessage('Email atau password salah');
-    }
   }
 
   void showMessage(String message) {

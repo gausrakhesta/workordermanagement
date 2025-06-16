@@ -15,15 +15,15 @@ class AuthProvider with ChangeNotifier {
     String email,
     String password,
     VoidCallback onSuccess,
-    VoidCallback onFail,
+    VoidCallback onError,
   ) {
-    if (email == 'admin@example.com' && password == '123456') {
+    if (email == 'admin@gmail.com' && password == '123456') {
       _isLoggedIn = true;
       Hive.box('authBox').put('isLoggedIn', true);
       notifyListeners();
-      onSuccess(); // ✅ pindah page dari sini
+      onSuccess();
     } else {
-      onFail();
+      onError();
     }
   }
 
