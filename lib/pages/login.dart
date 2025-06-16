@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:work_order/providers/auth.dart';
 import 'package:provider/provider.dart';
+import 'package:work_order/helpers/responsive.dart';
+import 'package:work_order/providers/auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _isLoading = false;
 
-  void handleLogin(BuildContext context) {
-    final email = emailController.text;
-    final password = passwordController.text;
+  void handleLogin() {
+    if (!_formKey.currentState!.validate()) return;
 
-    if (email.isEmpty || password.isEmpty) {
-      showMessage('Email dan Password tidak boleh kosong!');
-      return;
-    }
+    setState(() => _isLoading = true);
 
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     authProvider.login(
       email,
       password,
@@ -34,6 +37,8 @@ class _LoginState extends State<LoginPage> {
         showMessage('Email atau password salah');
       },
     );
+
+    setState(() => _isLoading = false);
   }
 
   void showMessage(String message) {
@@ -44,41 +49,129 @@ class _LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = ResponsiveHelper(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Email field
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
+      backgroundColor: Colors.grey[100],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: responsive.isDesktop
+                ? responsive.wp(30)
+                : responsive.isTablet
+                ? responsive.wp(20)
+                : 24,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Icon(
+                  Icons.lock_outline,
+                  size: responsive.isTablet ? 72 : 48,
+                  color: Colors.blue,
+                ),
+                SizedBox(height: 24),
+                Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: responsive.isTablet ? 28 : 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 32),
 
-            // Password field
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24),
+                // Email Field
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return 'Email tidak boleh kosong';
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$',
+                    ).hasMatch(value)) {
+                      return 'Format email tidak valid';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-            // Login button
-            ElevatedButton(
-              onPressed: () => handleLogin(context),
-              child: const Text('Login'),
+                // Password Field
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: _obscurePassword,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return 'Password tidak boleh kosong';
+                    if (value.length < 6) return 'Minimal 6 karakter';
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Login Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () {
+                    // TODO
+                  },
+                  child: const Text('Lupa password?'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
