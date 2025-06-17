@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_order/pages/profile.dart';
 
 class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName;
@@ -111,9 +112,17 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
 
               // Foto profil (jika dari URL)
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(profileImageUrl),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(profileImageUrl),
+                ),
               ),
             ],
           ),

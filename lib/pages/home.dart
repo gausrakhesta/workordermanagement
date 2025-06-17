@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:work_order/providers/auth.dart';
 import 'package:work_order/components/dashboardAppBar.dart';
 import 'package:work_order/components/dashboardCard.dart';
 import 'package:work_order/helpers/media_query.dart';
-// ganti sesuai lokasi
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoading = false;
+
+  void handleLogout() {
+    setState(() => _isLoading = true);
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.logout();
+
+    setState(() => _isLoading = false);
+
+    Navigator.pushReplacementNamed(context, '/');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +37,24 @@ class HomePage extends StatelessWidget {
         notificationCount: 22,
         profileImageUrl: "https://i.pravatar.cc/150?img=3",
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.only(top: MQ.hp(context, 2)),
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return DashboardCard(
-            batchCode: '#BAT004273${index + 1}',
-            client: 'IKEA${index + 1}',
-            totalJobs: 5 + index,
-            totalServices: 3 + index,
-            date: '20 November 2024',
-            status: 'Started',
-          );
-        },
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(MQ.hp(context, 2)),
+          children: [
+            const SizedBox(height: 16),
+            // List DashboardCard
+            ...List.generate(5, (index) {
+              return DashboardCard(
+                batchCode: '#BAT004273${index + 1}',
+                client: 'IKEA${index + 1}',
+                totalJobs: 5 + index,
+                totalServices: 3 + index,
+                date: '20 November 2024',
+                status: 'Started',
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

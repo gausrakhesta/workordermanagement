@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_order/pages/detail.dart';
 
 class DashboardCard extends StatelessWidget {
   final String batchCode;
@@ -60,7 +61,21 @@ class DashboardCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Icon(Icons.chevron_right),
+                  ElevatedButton.icon(
+                    onPressed: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPage(
+                            batchCode: batchCode,
+                            client: client,
+                            status: status,
+                          ),
+                        ),
+                      ),
+                    },
+                    label: Icon(Icons.chevron_right),
+                  ),
                 ],
               ),
               const Divider(height: 24),
